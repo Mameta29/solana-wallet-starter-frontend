@@ -48,6 +48,19 @@ export default function Home() {
     }
   };
 
+  const handleAirdrop = async () => {
+    try {
+      const connection = new Connection(clusterApiUrl(NETWORK), "confirmed");
+      const publicKey = account.publicKey;
+
+      const confirmation = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
+      await connection.confirmTransaction(confirmation, "confirmed");
+      await refreshBalance();
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
   return (
     <div className="p-10">
       <h1 className="text-5xl font-extrabold tracking-tight text-gray-900">
@@ -129,6 +142,14 @@ export default function Home() {
 
       <div>
         <h2 className="p-2 border-dotted border-l-4 border-l-indigo-400">STEP4: エアドロップ機能を実装する</h2>
+        {account && (
+          <button
+            className="p-2 my-6 text-white bg-indigo-500 focus:ring focus:ring-indigo-300 rounded-lg cursor-pointer"
+            onClick={handleAirdrop}
+          >
+            Airdrop
+          </button>
+        )}
       </div>
 
       <hr className="my-6" />
