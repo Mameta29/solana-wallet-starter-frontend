@@ -20,6 +20,17 @@ export default function Home() {
     setAccount(newAccount);
   };
 
+  const handleImport = (e) => {
+    e.preventDefault();
+    const inputMnemonic = e.target[0].value.trim().toLowerCase();
+    console.log('inputMnemonic', inputMnemonic);
+
+    const seed = Bip39.mnemonicToSeedSync(inputMnemonic).slice(0, 32);
+
+    const importedAccount = Keypair.fromSeed(seed);
+    setAccount(importedAccount);
+  };
+
   return (
     <div className="p-10">
       <h1 className="text-5xl font-extrabold tracking-tight text-gray-900">
@@ -61,6 +72,20 @@ export default function Home() {
 
       <div>
         <h2 className="p-2 border-dotted border-l-4 border-l-indigo-400">STEP2: 既存のウォレットをインポートする</h2>
+        <form onSubmit={handleImport} className="my-6">
+          <div className="flex items-center border-b border-indigo-500 py-2">
+            <input
+              type="text"
+              className="w-full text-gray-700 mr-3 p-1 focus:outline-none"
+              placeholder="ニーモニックフレーズ"
+            />
+            <input
+              type="submit"
+              className="p-2 text-white bg-indigo-500 focus:ring focus:ring-indigo-300 rounded-lg cursor-pointer"
+              value="インポート"
+            />
+          </div>
+        </form>
       </div>
 
       <hr className="my-6" />
