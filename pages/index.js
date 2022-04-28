@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Keypair } from "@solana/web3.js";
+import { Keypair, Connection, clusterApiUrl, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import * as Bip39 from "bip39";
+
+const NETWORK = 'devnet';
 
 export default function Home() {
   const [mnemonic, setMnemonic] = useState(null);
   const [account, setAccount] = useState(null);
+  const [balance, setBalance] = useState(null);
 
   const generateWallet = () => {
     const generatedMnemonic = Bip39.generateMnemonic();
@@ -31,6 +34,20 @@ export default function Home() {
     setAccount(importedAccount);
   };
 
+  const refreshBalance = async () => {
+    try {
+      const connection = new Connection(clusterApiUrl(NETWORK), "confirmed");
+      const publicKey = account.publicKey;
+
+      let balance = await connection.getBalance(publicKey);
+      balance = balance / LAMPORTS_PER_SOL;
+      console.log('balance', balance);
+      setBalance(balance);
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
   return (
     <div className="p-10">
       <h1 className="text-5xl font-extrabold tracking-tight text-gray-900">
@@ -44,7 +61,13 @@ export default function Home() {
 
       <div>
         <h3 className="p-2 border-dotted border-l-8 border-l-indigo-600">My Wallet</h3>
-        {account && <div className="my-6 text-indigo-600 font-bold">アドレス: {account.publicKey.toString()}</div>}
+        {account && (
+          <>
+            <div className="my-6 text-indigo-600 font-bold">アドレス: {account.publicKey.toString()}</div>
+            <div className="my-6 font-bold">ネットワーク: {NETWORK}</div>
+            {typeof balance === "number" && <div className="my-6 font-bold">💰 残高: {balance} SOL</div>}
+          </>
+        )}
       </div>
 
       <hr className="my-6" />
@@ -92,6 +115,14 @@ export default function Home() {
 
       <div>
         <h2 className="p-2 border-dotted border-l-4 border-l-indigo-400">STEP3: 残高を取得する</h2>
+        {account &&
+          <button
+            className="p-2 my-6 text-white bg-indigo-500 focus:ring focus:ring-indigo-300 rounded-lg cursor-pointer"
+            onClick={refreshBalance}
+          >
+            残高を取得
+          </button>
+        }
       </div>
 
       <hr className="my-6" />
